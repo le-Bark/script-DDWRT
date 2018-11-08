@@ -33,10 +33,10 @@ evenements = list()
 
 
 i=0
-while i<len(resultList):
+while 1:
 	#str = resultList[i]
 	str = subprocess.check_output(["wl","-a","eth1","assoclist"])
-	matchList = re.findall(r"(?:[A-F0-9]{2}:){5}[A-F0-9]{2}",str.decode("UTF-8",0)
+	matchList = re.findall(r"(?:[A-F0-9]{2}:){5}[A-F0-9]{2}",str.decode("UTF-8"),0)
 	#matchList = re.findall(r"[1-9]{1,2}",str,0)
 	matchList.sort()
 	index1=0
