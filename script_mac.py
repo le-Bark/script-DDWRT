@@ -9,35 +9,13 @@ class Evenement:
 	type = "type"
 	adresse = "00:00:00:00:00:00"
 
-#str = subprocess.check_output(["wl","-a","eth1","assoclist"])
-str = "assoclist 8C:F5:A3:42:62:9B\nassoclist AC:5F:3E:B3:3C:8B\n"
-resultList = [  "1,2,3,5",
-				"1,2,3,5",
-				"1,2,3,5",
-				"1,2,3,5,6",
-				",,,5,6",
-				"1,2,3,5,6",
-				"laksdj",
-				"2",
-				"",
-				"",
-				"",
-				"",
-				"1"]
-
-
-
 matchList2 = list()
 matchList = list()
 evenements = list()
 
-
-i=0
 while 1:
-	#str = resultList[i]
 	str = subprocess.check_output(["wl","-a","eth1","assoclist"])
 	matchList = re.findall(r"(?:[A-F0-9]{2}:){5}[A-F0-9]{2}",str.decode("UTF-8"),0)
-	#matchList = re.findall(r"[1-9]{1,2}",str,0)
 	matchList.sort()
 	index1=0
 	index2=0
@@ -69,16 +47,15 @@ while 1:
 				index2+=1
 
 	elif matchList:
-		for x in range(0,len(matchList)):
-			evenements += [Evenement("ajout",matchList[x])]
+		for x in matchList:
+			evenements += [Evenement("ajout",x)]
 	elif matchList2:
-		for x in range(0,len(matchList2)):
-			evenements += [Evenement("depart",matchList2[x])]
+		for x in matchList2:
+			evenements += [Evenement("depart",x)]
 				
 	matchList2 = matchList
-	i+=1
 	time.sleep(1)
 				
-	for x in range(0,len(evenements)):
-		print(evenements[x].type + "  " + evenements[x].adresse)
+	for x in evenements:
+		print(f"{x.type} {x.adresse}")
 	evenements = []
