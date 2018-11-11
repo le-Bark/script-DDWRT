@@ -1,6 +1,13 @@
 import subprocess
 import re
 import time
+import datetime
+import firebase_admin
+from pathlib import Path
+
+from firebase_admin import credentials
+from firebase_admin import db
+
 
 class Evenement:
 	def __init__(self,type,adresse):
@@ -9,13 +16,35 @@ class Evenement:
 	type = "type"
 	adresse = "00:00:00:00:00:00"
 
+#recuperation du path vers le volume "logs"
+pathStr = subprocess.check_output(["lsblk","-o","label,mountpoint"]).decode("UTF-8")
+#extraction du path depuis le resusltat
+pathStr = re.findall(r"LOGS\s+(.+)\s",pathStr)[0]
+
+#lis l'identifiant du routeur dans le fichier de configuration sur la memoire externe
+
+fichierConfig = open(pathStr + "/config.txt","r")
+routeurId = fichierConfig.readline()
+dbURL = fichierConfig.readline()
+fichierConfig.close()
+
+routeurId = re.findall(r"\w+",routeurId)[0]
+
+
+#initialisation de al base de donee
+cred = credentials.Certificate(pathStr + "/routeurKey.json")
+firebase_admin.initialize_app(cred,{ "databaseURL" : dbURL})
+dbRef = db.reference()
+
 matchList2 = list()
 matchList = list()
 evenements = list()
 
+macCheck = re.compile(r"(?:[A-F0-9]{2}:){5}[A-F0-9]{2}")
+
 while 1:
 	str = subprocess.check_output(["wl","-a","eth1","assoclist"])
-	matchList = re.findall(r"(?:[A-F0-9]{2}:){5}[A-F0-9]{2}",str.decode("UTF-8"),0)
+	matchList = macCheck.findall(str.decode("UTF-8"),0)
 	
 	#si rien n'est vide
 	if matchList2 and matchList:
@@ -38,5 +67,10 @@ while 1:
 	time.sleep(1)
 				
 	for x in evenements:
-		print(f"{x.type} {x.adresse}")
+		dbRef.child(routeurId).push({
+			"type" : x.type,
+			"adresse" : x.adresse,
+			"heure" : datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+		})
+
 	evenements = []
