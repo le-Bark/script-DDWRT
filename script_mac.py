@@ -17,7 +17,7 @@ class Evenement:
 	adresse = "00:00:00:00:00:00"
 
 #recuperation du path vers le volume "logs"
-pathStr = subprocess.check_output(["lsblk","-o","label,mountpoint"]).decode("UTF-8")
+pathStr = subprocess.check_output(["/opt/bin/lsblk","-o","label,mountpoint"]).decode("UTF-8")
 #extraction du path depuis le resusltat
 pathStr = re.findall(r"LOGS\s+(.+)\s",pathStr)[0]
 
