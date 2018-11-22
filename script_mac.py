@@ -24,17 +24,20 @@ pathStr = re.findall(r"LOGS\s+(.+)\s",pathStr)[0]
 #lis l'identifiant du routeur dans le fichier de configuration sur la memoire externe
 
 fichierConfig = open(pathStr + "/config.txt","r")
+routeurType = fichierConfig.readline()
 routeurId = fichierConfig.readline()
 dbURL = fichierConfig.readline()
 fichierConfig.close()
 
-routeurId = re.findall(r"[\w\/]+",routeurId)[0]
+routeurType = routeurType.strip()
+routeurId = routeurId.strip()
 
 
 #initialisation de al base de donee
 cred = credentials.Certificate(pathStr + "/routeurKey.json")
 firebase_admin.initialize_app(cred,{ "databaseURL" : dbURL})
-dbRef = db.reference(routeurId)
+dbRef = db.reference(routeurType + "/" + routeurId)
+presenceRef = db.reference("/presence/" + routeurId)
 
 matchList2 = list()
 matchList = list()
@@ -65,6 +68,10 @@ while 1:
 				
 	matchList2 = matchList
 	time.sleep(1)
+	
+	#si il y a un nouvel evenement
+	if len(evenements):
+		presenceRef.update({"adresses": matchList})
 	
 	for x in evenements:
 		dbRef.push({
