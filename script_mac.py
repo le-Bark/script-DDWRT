@@ -37,7 +37,7 @@ routeurId = routeurId.strip()
 
 
 #initialisation de al base de donee
-cred = credentials.Certificate(pathStr + "/routeurKey.json")
+cred = credentials.Certificate(pathStr + "/cle_db.json")
 firebase_admin.initialize_app(cred,{ "databaseURL" : dbURL})
 dbRef = db.reference(routeurType + "/" + routeurId)
 presenceRef = db.reference("/presence/" + routeurId)
@@ -54,8 +54,11 @@ while 1:
         except:
                 str = subprocess.check_output(["iw","dev","wlan0","station","dump"])
 
-        matchList = macCheck.findall(str.decode("UTF-8").upper(),0)
-
+        matchList = macCheck.findall(str.decode("UTF-8"),0)
+	
+		for i in matchList:
+			i = i.upper()
+		
         #si rien n'est vide
         if matchList2 and matchList:
                 #nouvelles adresses present dans matchlist mais pas dans matchlist2
